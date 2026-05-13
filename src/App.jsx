@@ -423,6 +423,7 @@ function HeroSection() {
             borderRadius: 100,
             padding: "6px 16px",
             marginBottom: 32,
+            marginTop: 60,
           }}
         >
           <div
