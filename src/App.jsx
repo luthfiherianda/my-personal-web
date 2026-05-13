@@ -4,10 +4,10 @@ import emailjs from "@emailjs/browser";
 
 const NAV_LINKS = [
   "Home",
+  "About",
   "Projects",
   "Skills",
   "Experience",
-  "About",
   "Contact",
 ];
 
