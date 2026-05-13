@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { GraduationCap, Target, MapPin, Zap } from "lucide-react";
 import emailjs from "@emailjs/browser";
 
 const NAV_LINKS = [
@@ -611,14 +612,18 @@ function HeroSection() {
 
 function ProjectsSection() {
   const [hovered, setHovered] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768); // ← state reaktif
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <section
       id="projects"
-      style={{
-        background: "#07101F",
-        padding: "100px 2rem",
-      }}
+      style={{ background: "#07101F", padding: "100px 2rem" }}
     >
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <FadeIn>
@@ -663,9 +668,9 @@ function ProjectsSection() {
         <div
           style={{
             display: "flex",
-            flexDirection: window.innerWidth < 768 ? "column" : "row",
-            gap: "20px",
-            padding: "20px",
+            flexDirection: "column",
+            gap: "32px",
+            width: "100%",
           }}
         >
           {PROJECTS.map((p, i) => (
@@ -680,15 +685,17 @@ function ProjectsSection() {
                       : "rgba(255,255,255,0.02)",
                   border: `1px solid ${hovered === i ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)"}`,
                   borderRadius: 16,
-                  padding: window.innerWidth < 768 ? "24px" : "32px 36px",
+                  padding: isMobile ? "24px" : "32px 36px",
                   display: "flex",
-                  flexDirection: window.innerWidth < 768 ? "column" : "row",
-                  alignItems: window.innerWidth < 768 ? "flex-start" : "center",
-                  gap: window.innerWidth < 768 ? 20 : 36,
+                  flexDirection: isMobile ? "column" : "row",
+                  alignItems: isMobile ? "flex-start" : "center",
+                  gap: isMobile ? 20 : 36,
                   cursor: "default",
                   transition: "all 0.25s ease",
                   position: "relative",
                   overflow: "hidden",
+                  width: "100%",
+                  boxSizing: "border-box",
                 }}
               >
                 {/* Color accent bar */}
@@ -706,7 +713,8 @@ function ProjectsSection() {
                   }}
                 />
 
-                <div style={{ flex: 1, paddingLeft: 12 }}>
+                {/* ✅ FIX 1: tambah minWidth: 0 agar teks tidak overflow dan flex: 1 bisa menyusut */}
+                <div style={{ flex: 1, paddingLeft: 12, minWidth: 0 }}>
                   <div
                     style={{
                       display: "flex",
@@ -765,14 +773,15 @@ function ProjectsSection() {
                   </p>
                 </div>
 
+                {/* ✅ FIX 2: flexDirection "column" + flexShrink: 0 + width fixed */}
                 <div
                   style={{
                     display: "flex",
-                    flexDirection: "row",
-                    flexWrap: "wrap",
+                    flexDirection: "column",
                     gap: 10,
-                    minWidth: window.innerWidth < 768 ? "100%" : 180,
-                    marginTop: window.innerWidth < 768 ? 10 : 0,
+                    width: isMobile ? "100%" : 180,
+                    flexShrink: 0,
+                    marginTop: isMobile ? 10 : 0,
                   }}
                 >
                   {p.metrics.map((m) => (
@@ -787,8 +796,6 @@ function ProjectsSection() {
                         color: "rgba(255,255,255,0.7)",
                         fontFamily: "'DM Mono', monospace",
                         textAlign: "center",
-                        flex: window.innerWidth < 768 ? "1" : "none",
-                        minWidth: "fit-content",
                       }}
                     >
                       {m}
@@ -796,12 +803,14 @@ function ProjectsSection() {
                   ))}
                 </div>
 
+                {/* ✅ FIX 3: tambah flexShrink: 0 agar panah tidak terjepit */}
                 <div
                   style={{
                     fontSize: 20,
                     color: hovered === i ? p.color : "rgba(255,255,255,0.2)",
                     transition: "color 0.25s, transform 0.25s",
                     transform: hovered === i ? "translateX(4px)" : "none",
+                    flexShrink: 0,
                   }}
                 >
                   →
@@ -1185,23 +1194,27 @@ function AboutSection() {
             }}
           >
             {[
-              [
-                "🎓",
-                "Education",
-                "Information Systems, UIN Syarif Hidayatullah Jakarta — 2024–Present",
-              ],
-              [
-                "💼",
-                "Focus Area",
-                "Data & Business Analytics, Predictive Modeling, Business Intelligence",
-              ],
-              ["🌍", "Location", "Depok, West Java, Indonesia"],
-              [
-                "⚡",
-                "Currently",
-                "Looking for remote/hybrid internship opportunities & freelance analytics projects.",
-              ],
-            ].map(([icon, label, val]) => (
+              {
+                icon: <GraduationCap size={18} color="#00E5A0" />,
+                label: "Education",
+                val: "Information Systems, UIN Syarif Hidayatullah Jakarta — 2024–Present",
+              },
+              {
+                icon: <Target size={18} color="#5B8DFF" />,
+                label: "Focus Area",
+                val: "Data & Business Analytics, Predictive Modeling, Business Intelligence",
+              },
+              {
+                icon: <MapPin size={18} color="#FFB547" />,
+                label: "Location",
+                val: "Depok, West Java, Indonesia",
+              },
+              {
+                icon: <Zap size={18} color="#FF6B6B" />,
+                label: "Currently",
+                val: "Looking for remote/hybrid internship opportunities & freelance analytics projects.",
+              },
+            ].map(({ icon, label, val }) => (
               <div
                 key={label}
                 style={{
@@ -1212,7 +1225,17 @@ function AboutSection() {
                   borderBottom: "1px solid rgba(255,255,255,0.05)",
                 }}
               >
-                <span style={{ fontSize: 20, minWidth: 28 }}>{icon}</span>
+                <span
+                  style={{
+                    minWidth: 28,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: 2,
+                  }}
+                >
+                  {icon}
+                </span>
                 <div>
                   <div
                     style={{
